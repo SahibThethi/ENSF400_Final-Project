@@ -1,5 +1,10 @@
 ## Demo - demonstrates an application and tests
 
+Group 32 First Check-in:
+* README modified
+* Docker Image created
+* Screenshots of collaborative workflow and collaboration made
+
 This is an application by [Coveros](https://www.coveros.com/) to demonstrate good
 software practices.  As we say in agile... _Working software over comprehensive 
 documentation_ ... but that doesn't mean we can't have pretty good documentation too. 
