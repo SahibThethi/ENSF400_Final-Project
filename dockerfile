@@ -1,28 +1,30 @@
-# Use the official Gradle image with JDK 11 as the base image
+# Stage 1: Build the WAR file using Gradle
 FROM gradle:7.6.1-jdk11 AS build
 
 # Set the working directory inside the container
 WORKDIR /app
 
 # Copy the Gradle configuration files and source code
-COPY build.gradle ./desktop_app/settings.gradle ./
+COPY build.gradle ./
 COPY gradle ./gradle
 COPY gradlew gradlew.bat ./
 COPY src ./src
 COPY desktop_app ./desktop_app
 
-# Build the project (this will also download dependencies)
-RUN gradle build --no-daemon
+# Build the WAR file
+RUN gradle war --no-daemon
 
-# Final stage: Run the application
-FROM gradle:7.6.1-jdk11
-WORKDIR /app
+# Stage 2: Deploy the WAR file to Tomcat
+FROM tomcat:9-jdk11 AS runtime
 
-# Copy the built JAR file from the root build/libs/ directory
-COPY --from=build /app/build/libs/*.jar app.jar
+# Remove the default ROOT application in Tomcat
+RUN rm -rf /usr/local/tomcat/webapps/ROOT
 
-# Expose the port (adjust if your app uses a specific port, e.g., 8080)
+# Copy the WAR file from the build stage to Tomcat's webapps directory
+COPY --from=build /app/build/libs/*.war /usr/local/tomcat/webapps/ROOT.war
+
+# Expose the port Tomcat runs on
 EXPOSE 8080
 
-# Run the application
-CMD ["java", "-jar", "app.jar"]
+# Start Tomcat
+CMD ["catalina.sh", "run"]

@@ -219,7 +219,7 @@ cucumberReports {
     // merge together all the cucumber reports with a suffix of "json"
     reports = files(fileTree(dir: "build/bdd", include: '*.json'))
     testTasksFinalizedByReport = false
-    projectNameOverride = "$projectname"
+    projectNameOverride = project.name
 }
 
 flyway {
@@ -266,8 +266,8 @@ check.dependsOn(jacocoTestReport)
 
 sonarqube {
     properties {
-        property "sonar.projectKey", "$projectname"
-        property "sonar.projectName", "$projectname"
+        property "sonar.projectKey", project.name
+        property "sonar.projectName", project.name
         property "sonar.projectDescription", "A demonstration of a web application with good test coverage and best practices"
         property "sonar.sources", "src/main/java"
         property "sonar.tests", "src/test/java,src/integration_test/java,src/bdd_test/java"
