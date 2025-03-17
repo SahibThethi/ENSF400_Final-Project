@@ -5,11 +5,12 @@ FROM gradle:7.6.1-jdk11 AS build
 WORKDIR /app
 
 # Copy the Gradle configuration files and source code
-COPY build.gradle ./
-COPY gradle ./gradle
-COPY gradlew gradlew.bat ./
-COPY src ./src
-COPY desktop_app ./desktop_app
+# COPY build.gradle ./
+# COPY gradle ./gradle
+# COPY gradlew gradlew.bat ./
+# COPY src ./src
+# COPY desktop_app ./desktop_app
+COPY . .
 
 # Build the WAR file
 RUN gradle war --no-daemon
