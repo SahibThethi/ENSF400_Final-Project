@@ -1,29 +1,31 @@
-# Use an official OpenJDK image as a base image
-FROM openjdk:17-jdk-slim AS build
+# Stage 1: Build the WAR file using Gradle
+FROM gradle:7.6.1-jdk11 AS build
 
 # Set the working directory inside the container
 WORKDIR /app
 
-# Copy the project files into the container
+# Copy the Gradle configuration files and source code
+# COPY build.gradle ./
+# COPY gradle ./gradle
+# COPY gradlew gradlew.bat ./
+# COPY src ./src
+# COPY desktop_app ./desktop_app
 COPY . .
 
-# Install Maven
-RUN apt-get update && apt-get install -y maven && rm -rf /var/lib/apt/lists/*
+# Build the WAR file
+RUN gradle war --no-daemon
 
-# Build the project using Maven
-RUN mvn clean package -DskipTests
+# Stage 2: Deploy the WAR file to Tomcat
+FROM tomcat:9-jdk11 AS runtime
 
-# Use a minimal OpenJDK runtime image
-FROM openjdk:17-jdk-slim
+# Remove the default ROOT application in Tomcat
+RUN rm -rf /usr/local/tomcat/webapps/ROOT
 
-# Set the working directory
-WORKDIR /app
+# Copy the WAR file from the build stage to Tomcat's webapps directory
+COPY --from=build /app/build/libs/*.war /usr/local/tomcat/webapps/ROOT.war
 
-# Copy the compiled JAR file from the build stage
-COPY --from=build /app/target/*.jar app.jar
-
-# Expose the application port (change if necessary)
+# Expose the port Tomcat runs on
 EXPOSE 8080
 
-# Define the command to run the application
-CMD ["java", "-jar", "app.jar"]
+# Start Tomcat
+CMD ["catalina.sh", "run"]
